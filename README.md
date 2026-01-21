@@ -16,4 +16,5 @@ https://github.com/SimoneMungari/AlgorithmicDrift/tree/main/data/processed
 
 ## Repo Structure
 - `paper/` – parent paper details and references  
-- `data/` – dataset access information  
+- `data/` – dataset access information
+- `code/` – any code worked on
