@@ -27,11 +27,6 @@ share/python-wheels/
 MANIFEST
 
 # MovieLens / data files
-ml-1m.zip
-*.zip
-data/raw/
-data/processed/
-data/splits/
 # Keep validation unseen
 data/splits/validation.csv
 
