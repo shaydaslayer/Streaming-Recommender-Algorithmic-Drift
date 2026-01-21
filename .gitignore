@@ -26,6 +26,15 @@ share/python-wheels/
 *.egg
 MANIFEST
 
+# MovieLens / data files
+ml-1m.zip
+*.zip
+data/raw/
+data/processed/
+data/splits/
+# Keep validation unseen
+data/splits/validation.csv
+
 # PyInstaller
 #  Usually these files are written by a python script from a template
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
