@@ -11,7 +11,7 @@ Coppolillo et al., 2025
 https://www.sciencedirect.com/science/article/pii/S0306457325000676
 
 ## Data
-Processed datasets used by the paper:
+Processed datasets used by the paper:  
 https://github.com/SimoneMungari/AlgorithmicDrift/tree/main/data/processed
 
 ## Parent paper code (submodule)
@@ -20,11 +20,12 @@ This repo includes the authors' implementation as a git submodule.
 To clone with submodules:
 ```bash
 git clone --recurse-submodules https://github.com/shaydaslayer/Streaming-Recommender-Algorithmic-Drift.git
+```
 
 ## Repo Structure
 - `paper/` – parent paper details and references  
-- `data/` – dataset access information
-- `code/` – any code worked on
+- `data/` – dataset access information  
+- `code/` – any code worked on  
 
 ---
 
@@ -41,14 +42,19 @@ A dedicated virtual environment was used:
 To activate the environment:
 ```bash
 .\venv39\Scripts\activate.bat
+```
 
-All required dependencies are listed in:
-code/authors_implementation/AlgorithmicDrift/requirements.txt
+All required dependencies are listed in:  
+`code/authors_implementation/AlgorithmicDrift/requirements.txt`
 
-However, networkx version was changed to networkx==2.8 to fix dependency issue, and recbole==1.0.1 was installed separately.
+However, `networkx` was downgraded to `networkx==2.8` to fix a dependency issue, and `recbole==1.0.1` was installed separately.
 
-Install
+Install dependencies:
+```bash
 pip install -r requirements.txt
+```
+
+---
 
 ## Code Modifications (Author Submodule)
 
@@ -106,16 +112,20 @@ These adjustments were required to:
 - Prevent infinite or excessively long simulations
 
 ## Running the Simulation
-All commands should be run from:
+
+All commands should be run from the repository root.
 
 ### Activate environment
 ```bash
 .\venv39\Scripts\activate.bat
+```
 
-Run the main pipeline:
+### Run the main pipeline
+```bash
 python src/2.0-RecModules/start/main.py
+```
 
 If successful, the process will:
--Load the MovieLens-1M dataset
--Run a RecVAE-guided simulation
--Generate graph files for each user
+- Load the MovieLens-1M dataset  
+- Run a RecVAE-guided simulation  
+- Generate graph files for each user  
