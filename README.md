@@ -18,14 +18,15 @@ https://github.com/SimoneMungari/AlgorithmicDrift/tree/main/data/processed
 This repo includes the authors' implementation as a git submodule.
 
 To clone with submodules:
+
 ```bash
 git clone --recurse-submodules https://github.com/shaydaslayer/Streaming-Recommender-Algorithmic-Drift.git
 ```
 
 ## Repo Structure
-- `paper/` – parent paper details and references  
-- `data/` – dataset access information  
-- `code/` – any code worked on  
+- `paper/` – parent paper details and references
+- `data/` – dataset access information
+- `code/` – any code worked on
 
 ---
 
@@ -40,16 +41,19 @@ A dedicated virtual environment was used:
 - Virtual environment: `venv39`
 
 To activate the environment:
+
 ```bash
 .\venv39\Scripts\activate.bat
 ```
 
-All required dependencies are listed in:  
+All required dependencies are listed in:
+
 `code/authors_implementation/AlgorithmicDrift/requirements.txt`
 
 However, `networkx` was downgraded to `networkx==2.8` to fix a dependency issue, and `recbole==1.0.1` was installed separately.
 
 Install dependencies:
+
 ```bash
 pip install -r requirements.txt
 ```
@@ -106,7 +110,8 @@ Added to prevent committing:
 ---
 
 ### Why These Changes Were Necessary
-The original codebase assumes a Linux-based environment and longer simulation runs.  
+The original codebase assumes a Linux-based environment and longer simulation runs.
+
 These adjustments were required to:
 - Run the code reliably on Windows
 - Prevent infinite or excessively long simulations
@@ -116,16 +121,18 @@ These adjustments were required to:
 All commands should be run from the repository root.
 
 ### Activate environment
+
 ```bash
 .\venv39\Scripts\activate.bat
 ```
 
 ### Run the main pipeline
+
 ```bash
 python src/2.0-RecModules/start/main.py
 ```
 
 If successful, the process will:
-- Load the MovieLens-1M dataset  
-- Run a RecVAE-guided simulation  
-- Generate graph files for each user  
+- Load the MovieLens-1M dataset
+- Run a RecVAE-guided simulation
+- Generate graph files for each user
