@@ -32,7 +32,7 @@ git clone --recurse-submodules https://github.com/shaydaslayer/Streaming-Recomme
 
 ## Reproducibility & Environment Setup (Windows)
 
-This project was run and debugged on **Windows 10** using **Python 3.9**
+This project was run and debugged on **Windows 11** using **Python 3.9**
 
 ### Python Environment
 A dedicated virtual environment was used:
