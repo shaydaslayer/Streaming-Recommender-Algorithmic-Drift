@@ -1,6 +1,6 @@
 # Streaming Recommender Systems & Algorithmic Drift
 
-**Group 36 – Shailee Patel**
+**Group 38 – Shailee Patel**
 
 ## Research Question
 Do personalized recommendation systems in streaming services reinforce existing viewing habits or promote exploration of new content?
