@@ -26,7 +26,32 @@ git clone --recurse-submodules https://github.com/shaydaslayer/Streaming-Recomme
 ## Repo Structure
 - `paper/` – parent paper details and references
 - `data/` – dataset access information
-- `code/` – any code worked on
+- `code/` – implementation and modified simulation code
+
+---
+
+## Project Status
+This project reproduces the original simulation pipeline from the parent paper and extends it with additional metrics.
+
+Current progress includes:
+- Successfully reproducing the original simulation pipeline
+- Running the RecVAE recommender model using the MovieLens-1M dataset
+- Generating user navigation graphs from the simulation
+- Implementing diversity-aware recommendation analysis
+- Logging diversity metrics during simulation
+
+---
+
+## Novel Contribution
+This project extends the original Algorithmic Drift framework by introducing diversity-aware recommendation analysis.
+
+The following modifications were implemented:
+- Category entropy metrics to measure diversity within recommendation lists
+- Diversity-aware reranking of Top-K recommendations
+- Logging of diversity metrics during simulation
+- Tools for analyzing how recommendation diversity influences long-term user behavior
+
+These additions allow the framework to evaluate whether increasing recommendation diversity can reduce filter bubble effects AND slow algorithmic drift.
 
 ---
 
@@ -64,7 +89,7 @@ pip install -r requirements.txt
 
 To successfully run the paper’s simulation and generate graphs, several fixes and adjustments were required in the authors’ implementation.
 
-These changes are **fully tracked in Git history** and preserved via a forked submodule.
+These changes are **fully tracked in Git history**.
 
 ### Files Modified
 
@@ -79,6 +104,9 @@ This method is required for the **rec-guided simulation** stage used to build tr
 ---
 
 #### 2. `start/graph_generation.py`
+- Added category entropy metrics to measure recommendation diversity
+- Implemented diversity-aware reranking for Top-K recommendations
+- Added metric logging to track diversity and filter bubble behavior over time
 - Limited the number of simulation iterations (`B` and `d`) for practical runtime during experimentation
 - Removed excessive debug logging that caused runaway console output
 - Ensured graph outputs are always written as:
@@ -115,6 +143,8 @@ The original codebase assumes a Linux-based environment and longer simulation ru
 These adjustments were required to:
 - Run the code reliably on Windows
 - Prevent infinite or excessively long simulations
+
+---
 
 ## Running the Simulation
 
