@@ -10,6 +10,8 @@ Algorithmic Drift: A simulation framework to study the effects of recommender sy
 Coppolillo et al., 2025  
 https://www.sciencedirect.com/science/article/pii/S0306457325000676
 
+The goal of this project is to analyze how recommendation diversity influences long-term user behavior and whether increasing diversity can reduce filter bubble formation.
+
 ## Data
 Processed datasets used by the paper:  
 https://github.com/SimoneMungari/AlgorithmicDrift/tree/main/data/processed
