@@ -2,6 +2,14 @@
 
 **Group 38 – Shailee Patel**
 
+## Background
+
+This project reproduces and extends the simulation framework from
+"Algorithmic Drift: A Simulation Framework to Study the Effects of Recommender Systems on User Preferences."
+
+The goal is to analyze whether increasing recommendation diversity can reduce
+filter bubble formation and influence long-term user behavior.
+
 ## Research Question
 Do personalized recommendation systems in streaming services reinforce existing viewing habits or promote exploration of new content?
 
@@ -9,8 +17,6 @@ Do personalized recommendation systems in streaming services reinforce existing 
 Algorithmic Drift: A simulation framework to study the effects of recommender systems on user preferences  
 Coppolillo et al., 2025  
 https://www.sciencedirect.com/science/article/pii/S0306457325000676
-
-The goal of this project is to analyze how recommendation diversity influences long-term user behavior and whether increasing diversity can reduce filter bubble formation.
 
 ## Data
 Processed datasets used by the paper:  
