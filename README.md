@@ -174,3 +174,77 @@ If successful, the process will:
 - Load the MovieLens-1M dataset
 - Run a RecVAE-guided simulation
 - Generate graph files for each user
+
+---
+
+## Replication Results (Table 1 Verification)
+
+To verify the parent paper, I implemented a full evaluation pipeline using:
+
+- Full user histories (not truncated)
+- True holdout (last 10 interactions per user)
+- RecVAE simulation outputs (sim_sequences.tsv)
+- Proper item ID mapping from internal to original MovieLens IDs
+
+### Evaluation Script
+
+Located in:
+replication_scripts/evaluate_table1_simulation.py
+
+### Final Results
+
+Metric        | This Work | Parent Paper
+-------------|----------|-------------
+HR@10        | 0.3376   | 0.3393
+Recall@10    | 0.0457   | 0.0462
+NDCG@10      | 0.0463   | 0.0467
+
+### Conclusion
+
+The reproduced results closely match the parent paper, confirming:
+
+- Correct dataset usage
+- Proper simulation pipeline execution
+- Correct evaluation methodology
+
+---
+
+## Replication Scripts
+
+All custom scripts used for replication are in:
+
+replication_scripts/
+
+Includes:
+- evaluate_table1_simulation.py
+- build_true_holdout.py
+- extract_item_mapping.py
+- build_ground_truth_from_inter.py
+- check_histories_split.py
+- novel_graph_generation.py
+
+Modified author files are stored in:
+
+replication_scripts/modified_files/
+
+Includes:
+- graph_generation_modified.py
+- data_utils_modified.py
+
+---
+
+## Note on Large Files
+
+The file:
+
+sim_sequences.tsv
+
+is around 300MB and exceeds GitHub's file size limit, so it's not included in this repository.
+
+To regenerate it, run the simulation pipeline:
+
+python handle_modules.py "C:\Users\patel\Streaming-Recommender-Algorithmic-Drift\data\processed\\" movielens-1m RecVAE generation No_strategy False "" movielens-1m cpu 1.0 "0,0,0,0,0,0,0" "0.01,0.01,0.01,0.01,0.01,0.01,0.01" 0.0 False Horror 0.0
+
+This will recreate the simulation outputs used for evaluation.
+
+---
