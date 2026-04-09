@@ -565,6 +565,33 @@ def generate_organic_graphs_movielens(history_dataset, item_label_dict):
         # print(path_file)
         create_graph_tsv(nodes, edges, weights, path_file, reverse_videos_labels_dict)
 
+
+
+def save_sim_sequences_tsv(all_sessions, reverse_users_dict, out_path, d):
+    """
+    Save generated simulation sequences for Table 1-style evaluation.
+    Columns: round_b, user_id, step, item_id
+    """
+    import csv
+    import os
+
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+
+    with open(out_path, "w", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f, delimiter="\t")
+        writer.writerow(["round_b", "user_id", "step", "item_id"])
+
+        for b_idx, sessions in enumerate(all_sessions):
+            for u_idx, seq in enumerate(sessions):
+                user_id = reverse_users_dict[u_idx] if reverse_users_dict is not None else u_idx
+
+                # keep only the generated part of the sequence
+                generated_seq = seq[-d:] if len(seq) >= d else seq
+
+                for step_idx, item_id in enumerate(generated_seq):
+                    writer.writerow([b_idx, user_id, step_idx, item_id])
+
+
 # Rec-guided Simulation
 def generate_graphs(
         T_tensor,
@@ -599,18 +626,8 @@ def generate_graphs(
          category=scipy.sparse.SparseEfficiencyWarning)
 
     print("NUM ITEMS", num_items)
-    # hard cap for quick runs
-    d = min(d, 15)
-    B = min(B, 1)   # optional: also cap B so it only does 1 outer run
 
     SYNTHETIC = args["synthetic"]
-
-    # --- NOVEL METRICS TOGGLE (safe default) ---
-    # If args does not contain this flag, default to False (no metrics logging)
-    log_metrics = False
-    if args is not None:
-        log_metrics = bool(args.get("log_metrics", False))
-
 
     model_users = np.array(users) + 1
     model_items = list(history_dataset.values())
@@ -634,9 +651,12 @@ def generate_graphs(
         organic_preferences = prepare_organic_model_movielens(history_dataset, item_label_dict)
 
     graphs_folder = graphs_folder + "{}_{}_gamma1_{}_sigmagamma1_{}_gamma2_{}_sigmagamma2_{}" \
-                                    "_gamma3_{}_sigmagamma3_{}_eta_{}".format(c, 1-c, gamma_list[0], sigma_gamma_list[0],
-                                                                               gamma_list[1], sigma_gamma_list[1],
-                                                                               gamma_list[2], sigma_gamma_list[2], eta)
+                                    "_gamma3_{}_sigmagamma3_{}_eta_{}".format(
+                                        c, 1-c,
+                                        gamma_list[0], sigma_gamma_list[0],
+                                        gamma_list[1], sigma_gamma_list[1],
+                                        gamma_list[2], sigma_gamma_list[2], eta
+                                    )
 
     if introduce_bias:
         graphs_folder += "_biased_{}_{}".format(target, influence_percentage)
@@ -654,26 +674,37 @@ def generate_graphs(
             count += len(items_target_to_take[-1])
         print("Mean item {} potential".format(target), count / len(history_dataset))
 
+    # ---------------------------
+    # NOVELTY SETTINGS
+    # ---------------------------
+    enable_diversity_rerank = True
+    lambda_div = 0.7
+
+    if enable_diversity_rerank:
+        graphs_folder += "_novelty_divrerank_{}".format(lambda_div)
 
     graphs_folder += "/"
 
-    # --- NOVEL: enable diversity rerank + bubble metrics logging ---
-    enable_diversity_rerank = False
-    lambda_div = 0.5
-    if args is not None:
-        enable_diversity_rerank = bool(args.get("diversity_rerank", False))
-        lambda_div = float(args.get("lambda_div", 0.5))
+    if not os.path.exists(graphs_folder):
+        os.makedirs(graphs_folder)
 
-    metrics_path = os.path.join(graphs_folder, "bubble_metrics.csv")
-    write_header = not os.path.exists(metrics_path)
-# --------------------------------------------------------------
+    entropy_log_path = os.path.join(graphs_folder, "entropy_metrics.tsv")
+    with open(entropy_log_path, "w", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f, delimiter="\t")
+        writer.writerow([
+            "round_b",
+            "step_d",
+            "user_id",
+            "topk_entropy",
+            "history_entropy",
+            "chosen_item"
+        ])
 
-    
     a_list = []
     b_list = []
 
     for i in range(len(gamma_list)):
-        if gamma_list[i] == 0 and sigma_gamma_list[i] == 0:
+        if gamma_list[i] <= 0 or sigma_gamma_list[i] <= 0:
             a_value = -1
             b_value = -1
         else:
@@ -712,129 +743,149 @@ def generate_graphs(
 
         if SYNTHETIC:
             organic_preferences = generate_organic_preferences(X, Y, shrinkage_alpha, noise_cov)
+
         for j in range(d):
-            #start_time_d = time.time()
 
             interactions = Interaction(interaction_dict)
-
             results = model.predict_for_graphs(interactions)
 
             scores = results.view(-1, num_items + 1).detach().cpu().numpy()
-
             scores[:, 0] = -np.inf  # set scores of [pad] to -inf
 
             nullify_history_scores(temp_histories, scores)
 
             scores = torch.FloatTensor(scores)
-
             topk_scores, topk_recommendations = torch.topk(scores, topk)
 
             temp_temp_item_values = []
             temp_temp_histories = []
 
-            for i in range(len(topk_recommendations)):
+            with open(entropy_log_path, "a", newline="", encoding="utf-8") as f:
+                writer = csv.writer(f, delimiter="\t")
 
-                orientation_index = user_orientation_dict[i]
-                user_recommendations = topk_recommendations[i].detach().cpu().numpy()
+                for i in range(len(topk_recommendations)):
 
-                if a_list[orientation_index] == -1 and b_list[orientation_index] == -1:
-                    gamma = 0
-                else:
-                    gamma = np.random.beta(a_list[orientation_index], b_list[orientation_index], size=1)
+                    orientation_index = user_orientation_dict[i]
+                    user_recommendations = topk_recommendations[i].detach().cpu().numpy()
+                    user_scores = np.array(topk_scores[i].detach().cpu().numpy(), dtype=float)
 
-                if np.random.binomial(1, gamma):
-                    if np.random.binomial(1, eta):
-                        items_available = list(set(np.arange(1, num_items + 1)) - set(temp_histories[i]))
-                        item_sampled = np.random.choice(items_available, size=1)[0]
-
-                    else:
-                        organic_preferences_user_tmp = copy.deepcopy(organic_preferences[i])
-                        organic_preferences_user_tmp[temp_histories[i] - 1] = -10000
-                        item_sampled = np.argmax(organic_preferences_user_tmp) + 1  # +1 to be consistent
-                else:
-                    items_exposure[i][user_recommendations - 1] += 1
-
-                    scores_probs = np.array(topk_scores[i])
-
-                    temp = scores_probs / scores_probs.sum()
-
-                    if np.any(temp) < 0:
-                        scores_probs = softmax(temp)
-                    else:
-                        scores_probs = temp
-
-                    if introduce_bias:
-
-                        num_target_items_to_add = int(influence_percentage * topk)
-
-                        if len(items_target_to_take_d[i]) < num_target_items_to_add:
-                            items_target_to_add = items_target_to_take_d[i]
-                        else:
-                            items_target_to_add = np.random.choice(items_target_to_take_d[i], size=num_target_items_to_add,
-                                                                   replace=False)
-
-                        idx_to_add = 0
-                        for idx, item_rec in enumerate(user_recommendations):
-                            if item_label_dict[item_rec - 1] == target:
-                                continue
-                            user_recommendations[idx] = items_target_to_add[idx_to_add] + 1 # to be coherent with indexes
-                            idx_to_add += 1
-                            if idx_to_add >= len(items_target_to_add):
-                                break
-
-
-                    # Novel extension: diversity-aware reranking of the Top-K list (optional)
-                    if enable_diversity_rerank and item_label_dict is not None:
-                        user_recommendations, scores_probs = diversity_rerank_topk(
-                            user_recommendations, scores_probs, item_label_dict, lambda_diversity=lambda_diversity
+                    # ---------------------------
+                    # NOVELTY BLOCK
+                    # rerank items AND scores together
+                    # ---------------------------
+                    if enable_diversity_rerank:
+                        user_recommendations, user_scores = diversity_rerank_topk(
+                            user_recommendations,
+                            user_scores,
+                            item_label_dict,
+                            lambda_diversity=lambda_div
                         )
 
-                    if c < 1:
+                        user_recommendations = user_recommendations[:5]
+                        user_scores = user_scores[:5]
 
-                        organic_user_preferences = np.array(
-                            [organic_preferences[i][int(l) - 1] for l in user_recommendations])
+                    # log diversity metrics
+                    topk_entropy = normalized_entropy(user_recommendations, item_label_dict)
+                    history_entropy = normalized_entropy(temp_histories[i], item_label_dict)
 
-                        min_value = np.min(organic_user_preferences)
-                        max_value = np.max(organic_user_preferences)
-                        if min_value < 0.0 or max_value > 1.0:
-                            organic_user_preferences = (organic_user_preferences - min_value) / (max_value - min_value)
-                            organic_user_preferences[organic_user_preferences == 0.] = 0.001
-                        if np.sum(organic_user_preferences) > 0:
-                            organic_user_preferences /= np.sum(organic_user_preferences)
+                    if a_list[orientation_index] == -1 and b_list[orientation_index] == -1:
+                        gamma = 0
+                    else:
+                        gamma = np.random.beta(a_list[orientation_index], b_list[orientation_index], size=1)
 
-                            combination_probs = c * scores_probs + (1 - c) * organic_user_preferences
+                    if np.random.binomial(1, gamma):
+                        if np.random.binomial(1, eta):
+                            items_available = list(set(np.arange(1, num_items + 1)) - set(temp_histories[i]))
+                            item_sampled = np.random.choice(items_available, size=1)[0]
+                        else:
+                            organic_preferences_user_tmp = copy.deepcopy(organic_preferences[i])
+                            organic_preferences_user_tmp[temp_histories[i] - 1] = -10000
+                            item_sampled = np.argmax(organic_preferences_user_tmp) + 1  # +1 to be consistent
+                    else:
+                        items_exposure[i][user_recommendations - 1] += 1
+
+                        scores_probs = np.array(user_scores, dtype=float)
+
+                        if np.any(scores_probs < 0):
+                            scores_probs = softmax(scores_probs)
+
+                        else:
+                            scores_probs = scores_probs / scores_probs.sum()
+
+                        # NEW: position bias after reranking
+                        position_weights = np.array([1.0 / ((idx + 1) ** 2) for idx in range(len(user_recommendations))], dtype=float)
+                        scores_probs = scores_probs * position_weights
+                        scores_probs = scores_probs / scores_probs.sum()
+
+                        if introduce_bias:
+
+                            num_target_items_to_add = int(influence_percentage * topk)
+
+                            if len(items_target_to_take_d[i]) < num_target_items_to_add:
+                                items_target_to_add = items_target_to_take_d[i]
+                            else:
+                                items_target_to_add = np.random.choice(
+                                    items_target_to_take_d[i],
+                                    size=num_target_items_to_add,
+                                    replace=False
+                                )
+
+                            idx_to_add = 0
+                            for idx, item_rec in enumerate(user_recommendations):
+                                if item_label_dict[item_rec - 1] == target:
+                                    continue
+                                user_recommendations[idx] = items_target_to_add[idx_to_add] + 1
+                                idx_to_add += 1
+                                if idx_to_add >= len(items_target_to_add):
+                                    break
+
+                        if c < 1:
+
+                            organic_user_preferences = np.array(
+                                [organic_preferences[i][int(l) - 1] for l in user_recommendations])
+
+                            min_value = np.min(organic_user_preferences)
+                            max_value = np.max(organic_user_preferences)
+                            if min_value < 0.0 or max_value > 1.0:
+                                organic_user_preferences = (organic_user_preferences - min_value) / (max_value - min_value)
+                                organic_user_preferences[organic_user_preferences == 0.] = 0.001
+
+                            if np.sum(organic_user_preferences) > 0:
+                                organic_user_preferences /= np.sum(organic_user_preferences)
+                                combination_probs = c * scores_probs + (1 - c) * organic_user_preferences
+                            else:
+                                combination_probs = scores_probs
                         else:
                             combination_probs = scores_probs
-                    else:
-                        combination_probs = scores_probs
 
-                    if np.min(combination_probs) < 0:
-                        combination_probs = softmax(combination_probs)
-                    else:
-                        combination_probs /= np.sum(combination_probs)
+                        if np.min(combination_probs) < 0:
+                            combination_probs = softmax(combination_probs)
+                        else:
+                            combination_probs /= np.sum(combination_probs)
 
-                    item_sampled = np.random.choice(user_recommendations, p=combination_probs)
+                        item_sampled = np.random.choice(user_recommendations, p=combination_probs)
 
+                    user_id_for_log = reverse_users_dict[i] if reverse_users_dict is not None else i
+                    writer.writerow([
+                        iter_b,
+                        j,
+                        user_id_for_log,
+                        round(topk_entropy, 6),
+                        round(history_entropy, 6),
+                        int(item_sampled)
+                    ])
 
-                    # Metrics logging (optional): category entropy of Top-K and of the user's history (a simple "filter-bubble" proxy)
-                    if log_metrics and item_label_dict is not None:
-                        topk_ent = category_entropy_from_items(user_recommendations - 1, item_label_dict)
-                        hist_ent = category_entropy_from_items(np.array(temp_histories[i]) - 1, item_label_dict)
-                        chosen_cat = item_label_dict.get(int(item_sampled - 1), "UNK")
-                        with open(metrics_path, "a", encoding="utf-8") as mf:
-                            mf.write(f"{iter_b},{j},{i},{topk_ent},{hist_ent},{int(item_sampled)},{chosen_cat}\n")
+                    if introduce_bias:
+                        items_target_to_take_d[i] = list(set(items_target_to_take_d[i]) - {item_sampled - 1})
 
-                if introduce_bias:
-                    items_target_to_take_d[i] = list(set(items_target_to_take_d[i]) - {item_sampled - 1})
+                    T_tensor[i][temp_histories[i][-1] - 1, item_sampled - 1] += 1
 
-                T_tensor[i][temp_histories[i][-1] - 1, item_sampled - 1] += 1
+                    sessions[i].append(reverse_videos_dict[item_sampled - 1])
 
-                sessions[i].append(reverse_videos_dict[item_sampled - 1])
-
-                temp_temp_histories.append(
-                    np.append(temp_histories[i], item_sampled))
-                temp_temp_item_values.append(
-                    np.append(temp_item_values[i], 1.))
+                    temp_temp_histories.append(
+                        np.append(temp_histories[i], item_sampled))
+                    temp_temp_item_values.append(
+                        np.append(temp_item_values[i], 1.))
 
             temp_histories = np.array(temp_temp_histories)
             temp_item_values = np.array(temp_temp_item_values)
@@ -842,10 +893,13 @@ def generate_graphs(
             interaction_dict["item_id"] = temp_histories
             interaction_dict["item_value"] = temp_item_values
 
-            #print("Time for an iteration of d:", time.time() - start_time_d)
-
         all_sessions.append(sessions)
         print("Time for an iteration of B:", time.time() - start_time)
+
+    seq_out = os.path.join(graphs_folder, "sim_sequences.tsv")
+    save_sim_sequences_tsv(all_sessions, reverse_users_dict, seq_out, d)
+    print("saved sequences:", seq_out)
+    print("saved entropy metrics:", entropy_log_path)
 
     for i in range(len(T_tensor)):
         T_tensor[i] = normalize_T(T_tensor[i], B)
@@ -854,7 +908,6 @@ def generate_graphs(
             T_tensor[i], reverse_videos_dict)
 
         filename = name + "_" + str(reverse_users_dict[i])
-
         path_file = graphs_folder + filename
 
         if not os.path.exists(graphs_folder):
