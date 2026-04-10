@@ -1,6 +1,6 @@
 # Reproducing the code on a fresh Windows machine:
 
-This reproduces the baseline RecVAE simulation and baseline evaluation, not the novel reranked version, to reproduce the novel reranked version there will be a note at the end. 
+This reproduces the baseline RecVAE simulation and baseline evaluation, not the novel reranked version, to reproduce the novel reranked version there will be a note at the end. There's also a fast mode guide included in case you don't want to run the full 6-8 hour pipeline but still want to make sure the code runs. 
 
 ---
 
@@ -248,7 +248,7 @@ And for entropy evaluation, this file should also exist:
 C:\Users\<YOUR_USERNAME>\Streaming-Recommender-Algorithmic-Drift\data\processed\movielens-1m\RecVAE\graphs\topk_10\1.0_0.0_gamma1_0.0_sigmagamma1_0.01_gamma2_0.0_sigmagamma2_0.01_gamma3_0.0_sigmagamma3_0.01_eta_0.0\entropy_metrics.tsv
 ```
 
-If either file is missing, the simulation did not complete correctly. Please also note that baseline simulation takes a good amount of time ~6-8 hours. It’s best to just let the simulation run until the necessary files are generated.
+If either file is missing, the simulation did not complete correctly. Please also note that baseline simulation takes a good amount of time. It’s best to just let the simulation run until the necessary files are generated.
 
 ---
 
@@ -445,3 +445,127 @@ Expected approximate novel output:
 ---
 
 If you want to switch back to the baseline after running the novel version, restore the original baseline graph_generation.py file from the backup you created in Step 1.
+
+---
+
+## OPTIONAL: Fast Mode (for testing only)
+
+The full baseline simulation takes approximately 6-8 hours so if you only want to verify that the pipeline runs correctly, you can use this faster version. This fast mode reduces runtime by limiting the number of users processed in the simulation.
+
+### Important
+Fast mode is **not** meant to reproduce the final reported baseline metrics exactly.  
+It is only meant to confirm that:
+
+- the environment is set up correctly
+- the data is in the correct location
+- the simulation runs without errors
+- the evaluation scripts work
+
+---
+
+### Step 1 - Open the baseline graph generation file
+
+Open this file:
+
+```text
+code\authors_implementation\AlgorithmicDrift\src\2.0-RecModules\start\graph_generation.py
+```
+
+---
+
+### Step 2 - Find this line inside `generate_graphs(...)`
+
+Find:
+
+```python
+model_users = np.array(users) + 1
+```
+
+Immediately below it, add:
+
+```python
+model_users = model_users[:100]
+```
+
+---
+
+### Step 3 - Find this line
+
+Find:
+
+```python
+model_items = list(history_dataset.values())
+```
+
+Immediately below it, add:
+
+```python
+model_items = model_items[:100]
+```
+
+---
+
+### Step 4 - Find this line
+
+Find:
+
+```python
+num_users=100,
+```
+
+Leave that line alone if it is already there.  
+If the file uses a larger number of users anywhere else in the function logic, make sure the simulation is only using the first 100 users from `model_users` and `model_items`.
+
+---
+
+### Step 5 - Save the file
+
+Save `graph_generation.py`.
+
+---
+
+### Step 6 - Run the simulation exactly the same way
+
+From:
+
+```text
+code\authors_implementation\AlgorithmicDrift\src\2.0-RecModules\start
+```
+
+run:
+
+```bash
+python handle_modules.py "%CD%\data\processed\\" movielens-1m RecVAE generation No_strategy False "" movielens-1m cpu 1.0 "0,0,0,0,0,0,0" "0.01,0.01,0.01,0.01,0.01,0.01,0.01" 0.0 False Horror 0.0
+```
+
+---
+
+### Step 7 - Wait for the simulation to finish
+
+In fast mode, the simulation should finish much sooner than the full run.
+
+---
+
+### Step 8 - Run the evaluation scripts
+
+Return to the repository root and run:
+
+```bash
+python replication_scripts\evaluate_table1_simulation.py
+python replication_scripts\evaluate_entropy.py
+```
+
+---
+
+### Step 9 - Interpret the results correctly
+
+The evaluation scripts should still run and produce output, but the metrics will **not** match the full reported baseline exactly because only 100 users were simulated.
+
+This mode is only for quick testing.
+
+To reproduce the actual reported baseline results:
+
+- remove the two lines added in Step 2 and Step 3
+- rerun the full simulation
+
+  
