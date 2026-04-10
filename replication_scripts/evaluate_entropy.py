@@ -1,7 +1,16 @@
 import csv
 import os
 
-ENTROPY_PATH = r"C:\Users\patel\Streaming-Recommender-Algorithmic-Drift\data\processed\movielens-1m\RecVAE\graphs\topk_10\1.0_0.0_gamma1_0.0_sigmagamma1_0.01_gamma2_0.0_sigmagamma2_0.01_gamma3_0.0_sigmagamma3_0.01_eta_0.0_novelty_divrerank_0.7\entropy_metrics.tsv"
+BASE_DIR = os.path.join(os.getcwd(), "data", "processed", "movielens-1m")
+
+ENTROPY_PATH = os.path.join(
+    BASE_DIR,
+    "RecVAE",
+    "graphs",
+    "topk_10",
+    "1.0_0.0_gamma1_0.0_sigmagamma1_0.01_gamma2_0.0_sigmagamma2_0.01_gamma3_0.0_sigmagamma3_0.01_eta_0.0",
+    "entropy_metrics.tsv"
+)
 
 def main():
     topk_vals = []

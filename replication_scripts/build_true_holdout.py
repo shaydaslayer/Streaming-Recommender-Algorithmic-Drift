@@ -1,9 +1,12 @@
+import os
 import csv
 from collections import defaultdict
 
-FULL_PATH = r"C:\Users\patel\Streaming-Recommender-Algorithmic-Drift\data\processed\movielens-1m\Histories.tsv"
-TRUNC_PATH = r"C:\Users\patel\Streaming-Recommender-Algorithmic-Drift\data\processed\movielens-1m\Histories_for_comparison.tsv"
-OUT_PATH = r"C:\Users\patel\Streaming-Recommender-Algorithmic-Drift\data\processed\movielens-1m\true_holdout_last10.tsv"
+BASE_DIR = os.path.join(os.getcwd(), "data", "processed", "movielens-1m")
+
+FULL_PATH = os.path.join(BASE_DIR, "Histories.tsv")
+TRUNC_PATH = os.path.join(BASE_DIR, "Histories_for_comparison.tsv")
+OUT_PATH = os.path.join(BASE_DIR, "true_holdout_last10.tsv")
 
 def load_histories(path):
     d = defaultdict(list)

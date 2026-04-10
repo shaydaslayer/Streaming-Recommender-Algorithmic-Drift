@@ -3,15 +3,15 @@ import math
 import csv
 from collections import defaultdict
 
-BASE_DIR = r"C:\Users\patel\Streaming-Recommender-Algorithmic-Drift\data\processed\movielens-1m"
-HISTORIES_PATH = r"C:\Users\patel\Streaming-Recommender-Algorithmic-Drift\data\processed\movielens-1m\true_holdout_last10.tsv"
+BASE_DIR = os.path.join(os.getcwd(), "data", "processed", "movielens-1m")
+HISTORIES_PATH = os.path.join(BASE_DIR, "true_holdout_last10.tsv")
 
 SIM_SEQ_PATH = os.path.join(
     BASE_DIR,
     "RecVAE",
     "graphs",
     "topk_10",
-    "1.0_0.0_gamma1_0.0_sigmagamma1_0.01_gamma2_0.0_sigmagamma2_0.01_gamma3_0.0_sigmagamma3_0.01_eta_0.0_novelty_divrerank_0.7",
+    "1.0_0.0_gamma1_0.0_sigmagamma1_0.01_gamma2_0.0_sigmagamma2_0.01_gamma3_0.0_sigmagamma3_0.01_eta_0.0",
     "sim_sequences.tsv"
 )
 
