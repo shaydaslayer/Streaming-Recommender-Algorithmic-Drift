@@ -218,16 +218,16 @@ or whatever lambda value is chosen (the 0.7 gets replaced depending on the lambd
 
 ## Step 8 - Run the baseline simulation:
 
-Change into the exact simulation folder:
+Before running the simulation command, first change into the correct directory:
 
 ```bash
 cd code\authors_implementation\AlgorithmicDrift\src\2.0-RecModules\start
 ```
 
-Then run the baseline command:
+Run the baseline command:
 
 ```bash
-python handle_modules.py "%CD%\data\processed\\" movielens-1m RecVAE generation No_strategy False "" movielens-1m cpu 1.0 "0,0,0,0,0,0,0" "0.01,0.01,0.01,0.01,0.01,0.01,0.01" 0.0 False Horror 0.0
+python handle_modules.py "C:\Users\%USERNAME%\Streaming-Recommender-Algorithmic-Drift\data\processed\\" movielens-1m RecVAE generation No_strategy False "" movielens-1m cpu 1.0 "0,0,0,0,0,0,0" "0.01,0.01,0.01,0.01,0.01,0.01,0.01" 0.0 False Horror 0.0
 ```
 
 This command generates the baseline RecVAE simulation output.
@@ -257,7 +257,7 @@ If either file is missing, the simulation did not complete correctly. Please als
 Return to the repository root:
 
 ```bash
-cd C:\Users\<YOUR_USERNAME>\Streaming-Recommender-Algorithmic-Drift
+cd C:\Users\%USERNAME%\Streaming-Recommender-Algorithmic-Drift
 ```
 
 Run the baseline Table 1 evaluation:
@@ -413,10 +413,16 @@ ENTROPY_PATH = os.path.join(
 
 ## Step 6 - Run the same simulation command:
 
+Before running the simulation command, first change into the correct directory:
+
+```bash
+cd code\authors_implementation\AlgorithmicDrift\src\2.0-RecModules\start
+```
+
 After replacing graph_generation.py with the novel version, run the same simulation command used for the baseline:
 
 ```bash
-python handle_modules.py "%CD%\data\processed\\" movielens-1m RecVAE generation No_strategy False "" movielens-1m cpu 1.0 "0,0,0,0,0,0,0" "0.01,0.01,0.01,0.01,0.01,0.01,0.01" 0.0 False Horror 0.0
+python handle_modules.py "C:\Users\%USERNAME%\Streaming-Recommender-Algorithmic-Drift\data\processed\\" movielens-1m RecVAE generation No_strategy False "" movielens-1m cpu 1.0 "0,0,0,0,0,0,0" "0.01,0.01,0.01,0.01,0.01,0.01,0.01" 0.0 False Horror 0.0
 ```
 
 The difference is that graph_generation.py now contains the novelty-enabled reranking logic, so the generated results will be written to the novelty folder.
@@ -425,7 +431,13 @@ The difference is that graph_generation.py now contains the novelty-enabled rera
 
 ## Step 7 - Run the evaluation scripts:
 
-After the simulation finishes, run:
+Before running the evaluation commands, return to the repository root:
+
+```bash
+cd C:\Users\%USERNAME%\Streaming-Recommender-Algorithmic-Drift
+```
+
+Then run:
 
 ```bash
 python replication_scripts\evaluate_table1_simulation.py
@@ -450,7 +462,7 @@ If you want to switch back to the baseline after running the novel version, rest
 
 ## OPTIONAL: Fast Mode (for testing only)
 
-The full baseline simulation takes approximately 6-8 hours so if you only want to verify that the pipeline runs correctly, you can use this faster version. This fast mode reduces runtime by limiting the number of users processed in the simulation.
+The full baseline simulation takes approximately 6-8 hours so if you only want to verify that the pipeline runs correctly, you can use this faster version. This fast mode reduces runtime by limiting the number of users processed in the simulation. Additionally, fast mode assumes you are still using the baseline version of `graph_generation.py`, not the novelty-enabled version.
 
 ### Important
 Fast mode is **not** meant to reproduce the final reported baseline metrics exactly.  
@@ -505,50 +517,43 @@ model_items = model_items[:100]
 
 ---
 
-### Step 4 - Find this line
-
-Find:
-
-```python
-num_users=100,
-```
-
-Leave that line alone if it is already there.  
-If the file uses a larger number of users anywhere else in the function logic, make sure the simulation is only using the first 100 users from `model_users` and `model_items`.
-
----
-
-### Step 5 - Save the file
+### Step 4 - Save the file
 
 Save `graph_generation.py`.
 
 ---
 
-### Step 6 - Run the simulation exactly the same way
+### Step 5 - Run the simulation exactly the same way
 
-From:
+Before running the simulation command, first change into the correct directory:
 
-```text
-code\authors_implementation\AlgorithmicDrift\src\2.0-RecModules\start
+```bash
+cd code\authors_implementation\AlgorithmicDrift\src\2.0-RecModules\start
 ```
 
 run:
 
 ```bash
-python handle_modules.py "%CD%\data\processed\\" movielens-1m RecVAE generation No_strategy False "" movielens-1m cpu 1.0 "0,0,0,0,0,0,0" "0.01,0.01,0.01,0.01,0.01,0.01,0.01" 0.0 False Horror 0.0
+python handle_modules.py "C:\Users\%USERNAME%\Streaming-Recommender-Algorithmic-Drift\data\processed\\" movielens-1m RecVAE generation No_strategy False "" movielens-1m cpu 1.0 "0,0,0,0,0,0,0" "0.01,0.01,0.01,0.01,0.01,0.01,0.01" 0.0 False Horror 0.0
 ```
 
 ---
 
-### Step 7 - Wait for the simulation to finish
+### Step 6 - Wait for the simulation to finish
 
 In fast mode, the simulation should finish much sooner than the full run.
 
 ---
 
-### Step 8 - Run the evaluation scripts
+### Step 7 - Run the evaluation scripts
 
-Return to the repository root and run:
+Before running the evaluation commands, return to the repository root:
+
+```bash
+cd C:\Users\%USERNAME%\Streaming-Recommender-Algorithmic-Drift
+```
+
+Then run: 
 
 ```bash
 python replication_scripts\evaluate_table1_simulation.py
@@ -557,7 +562,7 @@ python replication_scripts\evaluate_entropy.py
 
 ---
 
-### Step 9 - Interpret the results correctly
+### Step 8 - Interpret the results correctly
 
 The evaluation scripts should still run and produce output, but the metrics will **not** match the full reported baseline exactly because only 100 users were simulated.
 
