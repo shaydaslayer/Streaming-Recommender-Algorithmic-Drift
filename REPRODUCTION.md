@@ -85,10 +85,9 @@ If `py -3.9` is not recognized, install Python 3.9 from python.org and ensure it
 From the repository root run:
 
 ```bash
-pip install -r code\authors_implementation\AlgorithmicDrift\requirements.txt
-pip uninstall -y networkx recbole
-pip install networkx==2.8
-pip install recbole==1.0.1
+cd code\authors_implementation\AlgorithmicDrift
+pip install -r ..\..\..\requirements_working.txt
+pip install recbole==1.0.1 --no-deps
 ```
 
 It’s incredibly necessary that this is done correctly as the code WILL NOT run otherwise, again the EXACT environment used for reproduction is:
