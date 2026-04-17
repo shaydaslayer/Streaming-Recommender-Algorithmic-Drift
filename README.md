@@ -24,7 +24,7 @@ https://github.com/SimoneMungari/AlgorithmicDrift/tree/main/data/processed
 
 ## Parent paper code (submodule)
 
-⚠️ IMPORTANT: Do NOT download this repository as a ZIP file
+IMPORTANT: Do NOT download this repository as a ZIP file
 
 This repo includes the authors' implementation as a git submodule.
 
@@ -47,6 +47,16 @@ git submodule update --init --recursive
 - `data/` – dataset access information (download via release)
 - `code/` – parent implementation (submodule)
 - `replication_scripts/` – evaluation and custom scripts
+
+---
+
+## Full Reproduction Guide
+
+For full step-by-step instructions, see:
+
+```
+REPRODUCTION.md
+```
 
 ---
 
@@ -87,7 +97,8 @@ These additions allow the framework to evaluate whether increasing recommendatio
 
 ### Summary
 
-The novel approach improves both recommendation accuracy and diversity, this demonstrates that increasing diversity does not necessarily reduce performance and can lead to more balanced long-term user behavior.
+The novel approach improves both recommendation accuracy and diversity.  
+This demonstrates that increasing diversity does not necessarily reduce performance and can lead to more balanced long-term user behavior.
 
 ---
 
@@ -119,7 +130,11 @@ pip install recbole==1.0.1
 
 ## Running the Simulation
 
-All commands should be run from the repository root.
+The simulation must be run from:
+
+```
+code\authors_implementation\AlgorithmicDrift\src\2.0-RecModules\start
+```
 
 ### Activate environment
 
@@ -127,10 +142,16 @@ All commands should be run from the repository root.
 .\venv39\Scripts\activate.bat
 ```
 
+### Change to simulation directory
+
+```bash
+cd code\authors_implementation\AlgorithmicDrift\src\2.0-RecModules\start
+```
+
 ### Run simulation
 
 ```bash
-python handle_modules.py "%CD%\data\processed\\" movielens-1m RecVAE generation No_strategy False "" movielens-1m cpu 1.0 "0,0,0,0,0,0,0" "0.01,0.01,0.01,0.01,0.01,0.01,0.01" 0.0 False Horror 0.0
+python handle_modules.py "C:\Users\%USERNAME%\Streaming-Recommender-Algorithmic-Drift\data\processed\\" movielens-1m RecVAE generation No_strategy False "" movielens-1m cpu 1.0 "0,0,0,0,0,0,0" "0.01,0.01,0.01,0.01,0.01,0.01,0.01" 0.0 False Horror 0.0
 ```
 
 This will:
@@ -141,6 +162,12 @@ This will:
 ---
 
 ## Replication Results (Table 1 Verification)
+
+Return to the repository root before running evaluation:
+
+```bash
+cd C:\Users\%USERNAME%\Streaming-Recommender-Algorithmic-Drift
+```
 
 Evaluation script:
 
@@ -191,17 +218,8 @@ is too large for GitHub and is not included.
 To regenerate it, run:
 
 ```bash
-python handle_modules.py "%CD%\data\processed\\" movielens-1m RecVAE generation No_strategy False "" movielens-1m cpu 1.0 "0,0,0,0,0,0,0" "0.01,0.01,0.01,0.01,0.01,0.01,0.01" 0.0 False Horror 0.0
-```
-
----
-
-## Full Reproduction Guide
-
-For full step-by-step instructions, see:
-
-```
-REPRODUCTION.md
+cd code\authors_implementation\AlgorithmicDrift\src\2.0-RecModules\start
+python handle_modules.py "C:\Users\%USERNAME%\Streaming-Recommender-Algorithmic-Drift\data\processed\\" movielens-1m RecVAE generation No_strategy False "" movielens-1m cpu 1.0 "0,0,0,0,0,0,0" "0.01,0.01,0.01,0.01,0.01,0.01,0.01" 0.0 False Horror 0.0
 ```
 
 ---
