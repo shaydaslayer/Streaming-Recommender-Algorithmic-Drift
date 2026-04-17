@@ -85,8 +85,7 @@ If `py -3.9` is not recognized, install Python 3.9 from python.org and ensure it
 From the repository root run:
 
 ```bash
-cd code\authors_implementation\AlgorithmicDrift
-pip install -r ..\..\..\requirements_working.txt
+pip install -r requirements_working.txt
 pip install recbole==1.0.1 --no-deps
 ```
 
@@ -100,7 +99,7 @@ It’s incredibly necessary that this is done correctly as the code WILL NOT run
 
 ## Step 4 - Download and extract the processed dataset + checkpoint:
 
-Download the release asset containing the processed MovieLens-1M data and RecVAE checkpoint, it’s the only release on the repo. After downloading, extract the zip so that this folder exists exactly here:
+Download the release asset containing the processed MovieLens-1M data and RecVAE checkpoint, it’s the only release on the repo. Inside the repository root create the folders data and then in data processed. After downloading, extract the zip so that this folder exists exactly here:
 
 ```
 C:\Users\<YOUR_USERNAME>\Streaming-Recommender-Algorithmic-Drift\data\processed\movielens-1m
